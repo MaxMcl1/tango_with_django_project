@@ -16,5 +16,8 @@ def index(request):
     return render(request, 'rango/index.html', context=context_dict)
 
 def about(requesty):
-    return HttpResponse("Maxo says this is about <a href='/rango/'>Index</a>")
+
+    context_dicty = {'boldmessage': "This page has been put together by Max"}
+
+    return render(requesty, 'rango/about.html', context=context_dicty)
 
