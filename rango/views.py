@@ -15,9 +15,9 @@ def index(request):
     
     return render(request, 'rango/index.html', context=context_dict)
 
-def about(requesty):
+def about(request):
 
-    context_dicty = {'boldmessage': "This page has been put together by Max"}
+    context_dict = {'boldmessage': "This page has been put together by Max"}
 
-    return render(requesty, 'rango/about.html', context=context_dicty)
+    return render(request, 'rango/about.html', context=context_dict)
 
