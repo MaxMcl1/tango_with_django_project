@@ -23,6 +23,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^rango/', include('rango.urls')),
+    url(r'^login/$', views.user_login, name='login'),
+    url(r'^logout/$', views.user_logout, name='logout'),
+    
     # above maps any URLs starting with
     # rango/ to be handeled by
     # the rango application

@@ -1,7 +1,28 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
+
+
 
 # Create your models here.
+
+class UserProfile(models.Model):
+    # this line is req. links userprofile to a user model interface
+
+    user = models.OneToOneField(User)
+
+    # additional attributes
+
+    website = models.URLField(blank=True)
+    picture = models.ImageField(upload_to='profile_images', blank=True)
+
+    # override the unicode method to return something meaningful
+
+    def __unicode__(self):
+        return sumid
+
+    def __str(self):
+        return self.user.username
 
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
