@@ -8,6 +8,7 @@ from rango.forms import UserForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
 @login_required
 def user_logout(request):
@@ -38,11 +39,39 @@ def user_login(request):
         else:
 
             print("Invalid login details: {0}, {1}".format(username, password))
+            if user.username == username:
+                return HttpResponse("Invalid Password.")
             return HttpResponse("Invalid login details supplied.")
 
     else:
 
         return render(request, 'rango/login.html', {})
+
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+
+def visitor_cookie_handler(request):
+
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+
+    last_visit_cookie = get_server_side_cookie(request, 'last_visit',
+                                               str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
+                                        '%Y-%m-%d %H:%M:%S')
+
+    if(datetime.now() - last_visit_time).seconds > 0:
+        visits = visits + 1
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        visits = 1
+        request.session['last_visit'] = last_visit_cookie
+        
+
+    request.session['visits'] = visits
 
 def register(request):
 
@@ -107,7 +136,8 @@ def show_category(request, category_name_slug):
     return render(request, 'rango/category.html', context_dict)
 
 def index(request):
-
+    
+    request.session.set_test_cookie()
     # Construct a dictionary to pass to the template engine as its context.
     # Note the key boldmessage is the same as {{ boldmessage }} in the template!
     page_list = Page.objects.order_by('-views')[:5]
@@ -118,19 +148,27 @@ def index(request):
     # We make use of the shortcut function to make our lives easier.
     # Note that the first parameter is the template we wish to use.
 
+    visitor_cookie_handler(request)
+    context_dict['visits'] = request.session['visits']
+
+    response = render(request, 'rango/index.html', context=context_dict)
+
     
-    return render(request, 'rango/index.html', context_dict)
+    return response
 
 def about(request):
 
     context_dict = {'boldmessage': "Rango says here is the about page."}
+    visitor_cookie_handler(request)
+    context_dict['visits'] = request.session['visits']
 
     return render(request, 'rango/about.html', context=context_dict)
 
 
 @login_required
 def restricted(request):
-    return HttpResponse("Since you're logged in, you can see this text!")
+    context_dict = {'boldmessage': "Since you're logged in, you can see this text!"}
+    return render(request, 'rango/restricted.html', context=context_dict)
 
 def add_category(request):
     form = CategoryForm()
